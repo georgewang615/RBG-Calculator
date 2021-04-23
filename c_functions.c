@@ -89,7 +89,10 @@ float c_total_psnr_wrapper(int* red1, int* green1, int* blue1, int* red2, int* g
 }
 
 float c_r_psnr(struct Image* image1, struct Image* image2) {
-    //TODO
+    int red = *(image1->pd.colour_pixels.red);
+    printf("%d\n", red);
+    int red2 = *(image2->pd.colour_pixels.red);
+    printf("%d\n", red2);
     return 0;
 }
 

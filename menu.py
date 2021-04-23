@@ -5,72 +5,100 @@ import sys
 
 mode = "Python"
 
+def main():
+    print("Welcome to the PSNR image menu!")
+    menu(mode)
+
+
 def switch_mode():
     global mode
+
     if mode == "Python":
         mode = "C"
         menu(mode)
+
     elif mode == "C":
         mode = "Python"
         menu(mode)
     
+
 def ask_for_index():
+
     if len(images) == 0:
         print("No images have been loaded. No image can be selected.")
         menu(mode)
+
     else:
         while True:
             try:
                image_num1 = int(input("What is the index of the image you would like to select? "))
+
             except ValueError:
                 print("That is not a valid integer.") #testing if input 1 is valid
                 continue
+
             else:
                 if int(image_num1) not in range(1,len(images) + 1):
                     print("The index should be between {} and {}.".format(1, len(images)))
                     continue
+
                 else:
                     break
+
         while True:
             try:
                 image_num2 = int(input("What is the index of the image you would like to select? "))
+
             except ValueError:
                 print("That is not a valid integer.") #testing if input 2 is valid
                 continue
+
             else:
                 if int(image_num2) not in range(len(images) + 1):
                     print("The index should be between {} and {}.".format(1, len(images)))
                     continue
+
                 else:
                     break
+
         image_index1 = "Image " + str(image_num1)
         image_index2 = "Image " + str(image_num2)
+
         if images[image_index1][1] != images[image_index2][1]:
             print("Images are not the same length; cannot compute PSNR between them.")
             menu(mode)
+
         else:
             return (image_index1, image_index2)
 
 
 def ask_for_input():
     command = input()
+
     std_command = command.lower().replace(" ", "")
-    print(std_command)
+
     if std_command == "help":
         help()
+
     elif std_command == "mode":
         switch_mode()
+
     elif std_command == "quit":
         quit()
+
     elif std_command == "load":
         load()
+
     elif std_command == "show":
         show()
+
     elif std_command == "psnr-r":
         image_index1, image_index2 = ask_for_index()
+
         if (images[image_index1][2] != "colour") or (images[image_index2][2] != "colour"):
             print("One of those images is not in colour; cannot compute red PSNR.")
             menu(mode)
+
         else:
             if mode == "Python":
                 image1 = images[image_index1][0]
@@ -78,20 +106,14 @@ def ask_for_input():
                 print(image1, image2)
                 py_functions.py_r_psnr(image1, image2)
                 menu(mode)
+
             else:
-                image1 = images[image_index1]
-                if image1[2] == "colour":
-                    image1[2] = 1
-                else:
-                    image1[2] = 0
-                image2 = images[image_index2]
-                if image2[2] == "colour":
-                    image2[2] = 1
-                else:
-                    image1[2] = 0
+                image1 = images[image_index1][0]
+                image2 = images[image_index2][0]
                 print(image1, image2)
-                #translation.call_c_r_psnr(image1, image2)
+                translation.call_c_r_psnr(image1, image2)
                 menu(mode)
+
     elif std_command == "psnr-g":
         image_index1, image_index2 = ask_for_index()
         if (images[image_index1][2] != "colour") or (images[image_index2][2] != "colour"):
@@ -218,5 +240,5 @@ def help():
 
     ask_for_input()
 
-print("Welcome to the PSNR image menu!")
-menu(mode)
+if __name__ == "__main__":
+    main()

@@ -1,9 +1,7 @@
 CC = gcc
 CFLAGS = -fPIC -shared -Wall -Werror
-TARGET = functions
+TARGET = c_functions
 
-all: %(TARGET)
 
-%(TARGET): %(TARGET).c
-	%(CC) %(CFLAGS) -o %(TARGET).so %(TARGET).c
-	rm %(TARGET)
+$(TARGET): $(TARGET).c
+		$(CC) $(CFLAGS) -o $(TARGET).so $(TARGET).c
