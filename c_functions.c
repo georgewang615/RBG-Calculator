@@ -89,24 +89,99 @@ float c_total_psnr_wrapper(int* red1, int* green1, int* blue1, int* red2, int* g
 }
 
 float c_r_psnr(struct Image* image1, struct Image* image2) {
-    int red = *(image1->pd.colour_pixels.red);
-    printf("%d\n", red);
-    int red2 = *(image2->pd.colour_pixels.red);
-    printf("%d\n", red2);
-    return 0;
+    float MSE = 0;
+
+    for (int i = 0; i < image1->length; i++){ //iterating through each line of pixels
+        int red1 = *(image1->pd.colour_pixels.red + i); //accessing the address of the pixel and dereferencing it, and adding i moves on to the next line
+        int red2 = *(image2->pd.colour_pixels.red + i);
+        MSE += pow((red1-red2), 2); //adding each squared error to MSE
+    }
+    MSE /= image1->length; //diving MSE by the image length
+
+    if (MSE == 0){
+        return 0; //to prevent zero division with identical images
+    }
+
+    else{
+        float PSNR = 10 * log10((255 * 255) / MSE); //calculates PSNR as a float
+        return PSNR;
+    }
 }
 
 float c_g_psnr(struct Image* image1, struct Image* image2) {
-    //TODO
-    return 0;
+    float MSE = 0;
+    for (int i = 0; i < image1->length; i++){
+        int green1 = *(image1->pd.colour_pixels.green + i);
+        int green2 = *(image2->pd.colour_pixels.green + i);
+        MSE += pow((green1-green2), 2);
+    }
+    MSE /= image1->length;
+    if (MSE == 0){
+        return 0;
+    }
+    else{
+        float PSNR = 10 * log10((255 * 255) / MSE);
+        return PSNR;
+    }
 }
 
 float c_b_psnr(struct Image* image1, struct Image* image2) {
-    //TODO
-    return 0;
+    float MSE = 0;
+    for (int i = 0; i < image1->length; i++){
+        int blue1 = *(image1->pd.colour_pixels.blue + i);
+        int blue2 = *(image2->pd.colour_pixels.blue + i);
+        MSE += pow((blue1-blue2), 2);
+    }
+    MSE /= image1->length;
+    if (MSE == 0){
+        return 0;
+    }
+    else{
+        float PSNR = 10 * log10((255 * 255) / MSE);
+        return PSNR;
+    }
 }
 
 float c_total_psnr(struct Image* image1, struct Image* image2) {
-    //TODO
-    return 0;
+    float MSE = 0;
+    if (image1->is_coloured == 0){
+        for (int i = 0; i < image1->length; i++){
+            int grey1 = *(image1->pd.grey_pixels + i);
+            int grey2 = *(image2->pd.grey_pixels + i);
+            int difference = pow((grey1-grey2), 2);
+            MSE += difference;
+        }
+        MSE /= image1->length;
+        if (MSE == 0){
+            return 0;
+        }
+        else{
+            float PSNR = 10 * log10((255 * 255) / MSE);
+            return PSNR;
+        }
+    }
+    else {
+        for (int i = 0; i < image1->length; i++){
+            int red1 = *(image1->pd.colour_pixels.red + i);
+            int red2 = *(image2->pd.colour_pixels.red + i);
+
+            int green1 = *(image1->pd.colour_pixels.green + i);
+            int green2 = *(image2->pd.colour_pixels.green + i);
+
+            int blue1 = *(image1->pd.colour_pixels.blue + i);
+            int blue2 = *(image2->pd.colour_pixels.blue + i);
+
+            MSE += pow((red1-red2), 2);
+            MSE += pow((green1-green2), 2);
+            MSE += pow((blue1-blue2), 2);
+        }
+        MSE /= 3 * image1->length;
+        if (MSE == 0){
+            return 0;
+        }
+        else{
+            float PSNR = 10 * log10((255 * 255) / MSE);
+            return PSNR;
+        }
+    }
 }
