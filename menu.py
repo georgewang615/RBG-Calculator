@@ -11,7 +11,7 @@ def main():
 
 
 def switch_mode(): 
-    global mode
+    global mode #global variable that menu calls to show the mode
 
     if mode == "Python":
         mode = "C"
@@ -38,7 +38,7 @@ def ask_for_index():
                 continue
 
             else:
-                if int(image_num1) not in range(1,len(images) + 1):
+                if int(image_num1) not in range(1, len(images) + 1):
                     print("The index should be between {} and {}.".format(1, len(images))) #error case when pixel data is out of range
                     continue
 
@@ -54,7 +54,7 @@ def ask_for_index():
                 continue
 
             else:
-                if int(image_num2) not in range(len(images) + 1):
+                if int(image_num2) not in range(1, len(images) + 1):
                     print("The index should be between {} and {}.".format(1, len(images))) 
                     continue
 
@@ -64,28 +64,22 @@ def ask_for_index():
         image_index1 = "Image " + str(image_num1) #turning the index into a string for the images dictionary
         image_index2 = "Image " + str(image_num2)
 
-        if images[image_index1][1] != images[image_index2][1]:
-            print("Images are not the same length; cannot compute PSNR between them.") #error case where image lengths are different
-            menu(mode)
-
-        else:
-            return (image_index1, image_index2)
+        return (image_index1, image_index2)
+        
 
 def help_menu():
 
-    print("""
-    Commands:
-    load: Load a single image into the program for use
-    show: Display all images currently loaded
-    psnr-r: Calculate the PSNR between the red values for two colour images
-    psnr-g: Calculate the PSNR between the green values for two colour images
-    psnr-b: Calculate the PSNR between the blue values for two colour images
-    psnr: Calculate the PSNR between all values for two images
-    mode: Toggle mode between C and Python
-    help: Print out this command list
-    quit: Exit the PSNR Image Menu
-    """)
-
+    print(""" 
+Commands:
+load: Load a single image into the program for use
+show: Display all images currently loaded
+psnr-r: Calculate the PSNR between the red values for two colour images
+psnr-g: Calculate the PSNR between the green values for two colour images
+psnr-b: Calculate the PSNR between the blue values for two colour images
+psnr: Calculate the PSNR between all values for two images
+mode: Toggle mode between C and Python
+help: Print out this command list
+quit: Exit the PSNR Image Menu""")
     menu(mode)
 
 
@@ -129,7 +123,6 @@ def load():
             elif len(i) == 3:
 
                 for j in range(3): #iterating to each number
-
                     try:
                         i[j] = int(i[j]) #turning string from file into integer
 
@@ -159,36 +152,26 @@ def load():
         menu(mode)
 
 def show():
-    for image_index in images:
-        print("{}, Length {}, {}.".format(image_index, images[image_index][1], images[image_index][2])) #fetching data from the global dictionary
+    if len(images) == 0: #checks if image dictionary is empty
+        print("No loaded images to show.")
+        
+    else:
+        print("Loaded images:")
+        for image_index in images:
+            print("{}, Length {}, {}.".format(image_index, images[image_index][1], images[image_index][2])) #fetching data from the global dictionary
+
     menu(mode)
 
 
 def psnr_r():
     image_index1, image_index2 = ask_for_index()
-
+    
     if (images[image_index1][2] != "colour") or (images[image_index2][2] != "colour"):
-        print("One of those images is not in colour; cannot compute red PSNR.") #error case when image is monochrome
+        print("One of those images is not in colour; cannot compute red PSNR.")
         menu(mode)
 
-    else:
-        image1 = images[image_index1][0] #obtains the pixel data
-        image2 = images[image_index2][0]
-
-        if mode == "Python":
-            py_functions.py_r_psnr(image1, image2) #calls Python function with pixel data
-            menu(mode)
-
-        else:
-            PSNR = translation.call_c_r_psnr(image1, image2) #calls C function that returns PSNR float with pixel data
-            print("Red PSNR: {}".format(PSNR))
-            menu(mode)
-
-def psnr_g():
-    image_index1, image_index2 = ask_for_index()
-
-    if (images[image_index1][2] != "colour") or (images[image_index2][2] != "colour"):
-        print("One of those images is not in colour; cannot compute green PSNR.")
+    elif images[image_index1][1] != images[image_index2][1]:
+        print("Images are not the same length; cannot compute PSNR between them.") #error case where image lengths are different
         menu(mode)
 
     else:
@@ -196,7 +179,33 @@ def psnr_g():
         image2 = images[image_index2][0]
 
         if mode == "Python":
-            py_functions.py_g_psnr(image1, image2)
+            PSNR = py_functions.py_r_psnr(image1, image2)
+            print("Red PSNR: {}".format(PSNR))
+            menu(mode)
+
+        else:
+            PSNR = translation.call_c_r_psnr(image1, image2)
+            print("Red PSNR: {}".format(PSNR))
+            menu(mode)
+
+def psnr_g():
+    image_index1, image_index2 = ask_for_index()
+    
+    if (images[image_index1][2] != "colour") or (images[image_index2][2] != "colour"):
+        print("One of those images is not in colour; cannot compute green PSNR.")
+        menu(mode)
+
+    elif images[image_index1][1] != images[image_index2][1]:
+        print("Images are not the same length; cannot compute PSNR between them.") #error case where image lengths are different
+        menu(mode)
+
+    else:
+        image1 = images[image_index1][0]
+        image2 = images[image_index2][0]
+
+        if mode == "Python":
+            PSNR = py_functions.py_g_psnr(image1, image2)
+            print("Green PSNR: {}".format(PSNR))
             menu(mode)
 
         else:
@@ -211,13 +220,18 @@ def psnr_b():
     if (images[image_index1][2] != "colour") or (images[image_index2][2] != "colour"):
         print("One of those images is not in colour; cannot compute blue PSNR.")
         menu(mode)
+    
+    elif images[image_index1][1] != images[image_index2][1]:
+        print("Images are not the same length; cannot compute PSNR between them.") #error case where image lengths are different
+        menu(mode)
 
     else:
         image1 = images[image_index1][0]
         image2 = images[image_index2][0]
 
         if mode == "Python":
-            py_functions.py_b_psnr(image1, image2)
+            PSNR = py_functions.py_b_psnr(image1, image2)
+            print("Blue PSNR: {}".format(PSNR))
             menu(mode)
 
         else:
@@ -232,12 +246,17 @@ def psnr():
         print("Images are not the same type; cannot compute PSNR between them.") #error case where images are not the same type
         menu(mode)
 
+    elif images[image_index1][1] != images[image_index2][1]:
+        print("Images are not the same length; cannot compute PSNR between them.") #error case where image lengths are different
+        menu(mode)
+
     else:
         image1 = images[image_index1][0]
         image2 = images[image_index2][0]
 
         if mode == "Python":
-            py_functions.py_b_psnr(image1, image2)
+            PSNR = py_functions.py_total_psnr(image1, image2)
+            print("PSNR of images: {}".format(PSNR))
             menu(mode)
 
         else:
@@ -249,23 +268,29 @@ def psnr():
 #dictionary that contains functions and their input names
 functions = {"help" : help_menu, "mode" : switch_mode, "quit" : quit, "load" : load, "show" : show, "psnr-r" : psnr_r, "psnr-g" : psnr_g, "psnr-b" : psnr_b, "psnr" : psnr}
 
+def ask_for_input():
+    
+    return std_command
 
 def menu(mode):
     print("""
-    ---PSNR Image Menu---
+--- PSNR Image Menu ---
 
-    Mode: {}
-    Type 'help' to see all commands
-    """.format(mode))
+Mode: {}
+Type 'help' to see all commands
+""".format(mode))
 
-    command = input()
-    std_command = command.lower().replace(" ", "")
+    while True:
+        command = input()
+        std_command = command.lower().replace(" ", "")
     
-    functions[std_command]() #calls the function through the dictionary
-    menu(mode)
+        if std_command in functions:
+            functions[std_command]() #calls the function through the dictionary
+            menu(mode)
 
-
-
+        else:
+            print("Invalid command.")
+            continue
 
 if __name__ == "__main__":
     main()
